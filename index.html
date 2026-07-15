@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="復習">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<title>復習 - Listening Studio</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --text:#1f2430; --sub:#6b7280;
+    --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb; --radius:14px;
+    --green:#059669; --barh:74px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--text);
+    font-family:"Hiragino Sans","Yu Gothic UI",system-ui,-apple-system,sans-serif;
+    font-size:16px;line-height:1.4;
+    padding:0 0 calc(var(--barh) + env(safe-area-inset-bottom));}
+  header{position:sticky;top:0;z-index:10;background:var(--card);
+    border-bottom:1px solid var(--border);padding:12px 14px;
+    padding-top:calc(12px + env(safe-area-inset-top));
+    display:flex;align-items:center;gap:10px}
+  header h1{font-size:16px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  header .back{font-size:15px;color:var(--accent);background:none;border:none;padding:6px;cursor:pointer}
+  header .prog{font-size:12px;color:var(--sub);white-space:nowrap}
+  .wrap{padding:12px 14px}
+
+  .note{font-size:13px;color:var(--sub);line-height:1.7;background:var(--card);
+    border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
+  .btn{display:block;width:100%;padding:13px;margin-bottom:10px;border:1px solid var(--border);
+    background:var(--card);border-radius:12px;font-size:15px;color:var(--accent);font-family:inherit;font-weight:600}
+  .btn.plain{color:var(--sub);font-weight:400}
+  .empty{color:var(--sub);text-align:center;padding:34px 12px;line-height:1.8}
+
+  .libcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+  .libcard .t{flex:1;font-weight:600;font-size:15px;line-height:1.35;min-width:0}
+  .libcard .m{font-size:12px;color:var(--sub);margin-top:3px;font-weight:400}
+  .libcard .open{color:var(--accent);font-size:22px;background:none;border:none;padding:6px 4px}
+  .libcard .del{color:#b91c1c;font-size:16px;background:none;border:none;padding:6px 4px}
+
+  .sent{background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:12px 12px;margin-bottom:9px;display:flex;gap:10px;align-items:flex-start}
+  .sent.active{border-color:var(--accent);background:var(--accent-soft)}
+  .sent .ts{color:var(--accent);font-size:12px;min-width:42px;padding-top:3px;font-variant-numeric:tabular-nums}
+  .sent .body{flex:1;min-width:0}
+  .sent .en{font-size:17px;line-height:1.5}
+  .sent .en.learned{color:#9ca3af}
+  .sent .ja{color:#8a919e;font-size:13.5px;line-height:1.5;margin-top:4px}
+  body.hide-ja .sent .ja{display:none}
+  .sent .ops{display:flex;flex-direction:column;gap:7px;align-items:stretch;flex-shrink:0;margin-top:1px}
+  .sent .chk,.sent .ank{border:2px solid var(--border);border-radius:999px;background:var(--card);
+    font-size:12px;padding:7px 12px;white-space:nowrap;color:var(--sub);font-family:inherit;line-height:1}
+  .sent .chk.on{background:var(--green);border-color:var(--green);color:#fff}
+  .sent .ank.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .legend{font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:10px;
+    background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 12px}
+
+  #bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);
+    border-top:1px solid var(--border);box-shadow:0 -3px 14px rgba(0,0,0,.07);
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:20;display:none}
+  #bar .row{display:flex;align-items:center;justify-content:space-between;gap:6px;max-width:640px;margin:0 auto}
+  #bar button{border:none;background:none;font-size:22px;padding:6px 8px;color:var(--text);border-radius:10px;font-family:inherit}
+  #bar button:active{background:#eef2ff}
+  #bar .pp{font-size:26px;color:#fff;background:var(--accent);width:56px;height:56px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  #bar .mini{font-size:16px;padding:6px 6px}
+  #bar .mini.on{color:var(--accent)}
+  #bar .row2{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:6px;max-width:640px;margin-left:auto;margin-right:auto}
+  #bar select{font-size:15px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:#fff;font-family:inherit;color:var(--text)}
+  #bar .lbl{font-size:12px;color:var(--sub)}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--barh) + 20px);
+    background:#111827;color:#fff;font-size:13px;padding:8px 14px;border-radius:20px;opacity:0;
+    transition:opacity .25s;z-index:30;pointer-events:none;max-width:88%;text-align:center}
+  .toast.show{opacity:.94}
+</style>
+</head>
+<body>
+<header>
+  <button class="back" id="backBtn" style="display:none">‹ 一覧</button>
+  <h1 id="hdr">📚 オフライン復習</h1>
+  <span class="prog" id="prog"></span>
+</header>
+
+<!-- ライブラリ画面 -->
+<div class="wrap" id="libView">
+  <div class="note">
+    パソコンで書き出した「スマホ用ファイル」を読み込むと、この端末に保存され、<b>パソコンOFF・ネットなしでも</b>復習できます。
+  </div>
+  <button class="btn" id="importBtn">📥 ファイルから読み込み</button>
+  <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+  <div id="libList"></div>
+</div>
+
+<!-- 学習画面 -->
+<div class="wrap" id="studyView" style="display:none">
+  <div id="sentList"></div>
+</div>
+
+<!-- プレーヤーバー -->
+<div id="bar">
+  <div class="row">
+    <button id="bPrev" title="前の文">⏮</button>
+    <button id="bBack" title="3秒戻す">↺</button>
+    <button class="pp" id="bPlay">▶</button>
+    <button id="bFwd" title="3秒進める">↻</button>
+    <button id="bNext" title="次の文">⏭</button>
+    <button class="mini" id="bSentLoop" title="この文を繰り返す">🔂</button>
+    <button class="mini" id="bFullLoop" title="最後まで行ったら最初へ">♾</button>
+  </div>
+  <div class="row2">
+    <span class="lbl">速度</span>
+    <select id="bSpeed">
+      <option value="0.5">0.5×</option>
+      <option value="0.65">0.65×</option>
+      <option value="0.75">0.75×</option>
+      <option value="0.8">0.8×</option>
+      <option value="0.9">0.9×</option>
+      <option value="1" selected>1×</option>
+      <option value="1.1">1.1×</option>
+      <option value="1.2">1.2×</option>
+      <option value="1.5">1.5×</option>
+      <option value="1.75">1.75×</option>
+      <option value="2">2×</option>
+    </select>
+    <button class="mini" id="bToggleJa" title="訳の表示切替">🇯🇵 訳</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ============ Service Worker 登録(オフライン用) ============ */
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{ navigator.serviceWorker.register("./sw.js").catch(()=>{}); });
+}
+if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(()=>{}); }
+
+/* ============ IndexedDB(端末内保存) ============ */
+const DB_NAME="yls_pwa", STORE="bundles";
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,1);
+    req.onupgradeneeded=()=>{ const db=req.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE,{keyPath:"id"}); };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function idbPut(rec){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,"readwrite");
+    tx.objectStore(STORE).put(rec);
+    tx.oncomplete=()=>resolve(); tx.onerror=()=>reject(tx.error);
+  });
+}
+async function idbGet(id){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const r=db.transaction(STORE,"readonly").objectStore(STORE).get(id);
+    r.onsuccess=()=>resolve(r.result||null); r.onerror=()=>reject(r.error);
+  });
+}
+async function idbAll(){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const r=db.transaction(STORE,"readonly").objectStore(STORE).getAll();
+    r.onsuccess=()=>resolve(r.result||[]); r.onerror=()=>reject(r.error);
+  });
+}
+async function idbDel(id){
+  const db=await openDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,"readwrite");
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete=()=>resolve(); tx.onerror=()=>reject(tx.error);
+  });
+}
+
+/* ============ 状態 ============ */
+const audio=new Audio();
+let curId=null, curTitle="", sentences=[], curBlobUrl=null;
+let cur=-1, mode="none", sentLoop=false, fullLoop=false, playing=false;
+const LS_HIDEJA="mob_hideja";
+
+const $=id=>document.getElementById(id);
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1900); }
+function formatTime(t){ t=Math.max(0,Math.round(t||0)); const h=Math.floor(t/3600),m=Math.floor((t%3600)/60),s=t%60; const mm=String(m).padStart(2,"0"),ss=String(s).padStart(2,"0"); return h>0?(h+":"+mm+":"+ss):(mm+":"+ss); }
+function escapeHtml(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function b64ToBlob(b64,mime){
+  const bin=atob(b64), len=bin.length, arr=new Uint8Array(len);
+  for(let i=0;i<len;i++) arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type:mime||"audio/mp4"});
+}
+
+/* ============ 読み込み(ファイル→端末保存) ============ */
+$("importBtn").addEventListener("click",()=>$("importFile").click());
+$("importFile").addEventListener("change",async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  toast("読み込み中…");
+  try{
+    const text=await f.text();
+    const b=JSON.parse(text);
+    if(b.app!=="yls-bundle" || !b.id || !b.audioBase64) throw new Error("対応していないファイルです");
+    const rec={
+      id:b.id, title:b.title||b.id,
+      sentences:(b.sentences||[]).map(s=>({text:s.text,start:s.start,end:s.end,ja:s.ja||"",
+        anki:s.anki!==false, learned:!!s.learned})),
+      audioBlob:b64ToBlob(b.audioBase64,b.audioMime), audioMime:b.audioMime||"audio/mp4",
+      savedAt:Date.now()
+    };
+    await idbPut(rec);
+    toast("保存しました: "+rec.title);
+    renderLibrary();
+  }catch(err){
+    toast("読み込み失敗: "+err.message);
+  }
+  e.target.value="";
+});
+
+/* ============ ライブラリ ============ */
+async function renderLibrary(){
+  const list=$("libList");
+  let recs=[];
+  try{ recs=await idbAll(); }catch(e){}
+  recs.sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
+  if(!recs.length){
+    list.innerHTML='<div class="empty">まだ端末に動画がありません。<br>上の「📥 ファイルから読み込み」で、パソコンで書き出したファイルを取り込んでください。</div>';
+    return;
+  }
+  list.innerHTML="";
+  recs.forEach(r=>{
+    const learned=(r.sentences||[]).filter(s=>s.learned).length;
+    const card=document.createElement("div");
+    card.className="libcard";
+    card.innerHTML=`<div class="t">${escapeHtml(r.title)}
+        <div class="m">${r.sentences.length}文 ・ 覚えた ${learned}/${r.sentences.length}</div></div>
+      <button class="open" aria-label="開く">›</button>
+      <button class="del" aria-label="削除">🗑</button>`;
+    card.querySelector(".open").addEventListener("click",()=>openStored(r.id));
+    card.querySelector(".t").addEventListener("click",()=>openStored(r.id));
+    card.querySelector(".del").addEventListener("click",async()=>{
+      if(confirm(`「${r.title}」を端末から削除しますか?(元に戻せません。パソコン側のデータは残ります)`)){
+        await idbDel(r.id); renderLibrary();
+      }
+    });
+    list.appendChild(card);
+  });
+}
+
+async function openStored(id){
+  try{
+    const r=await idbGet(id);
+    if(!r) throw new Error("見つかりません");
+    curId=r.id; curTitle=r.title;
+    sentences=r.sentences.map(s=>({text:s.text,start:s.start,end:s.end,ja:s.ja||"",anki:s.anki!==false,learned:!!s.learned}));
+    if(curBlobUrl){ URL.revokeObjectURL(curBlobUrl); curBlobUrl=null; }
+    curBlobUrl=URL.createObjectURL(r.audioBlob);
+    audio.src=curBlobUrl; audio.load();
+    cur=-1; mode="none"; playing=false; sentLoop=false; fullLoop=false;
+    $("bSentLoop").classList.remove("on"); $("bFullLoop").classList.remove("on");
+    renderStudy();
+    showStudy();
+  }catch(err){ toast("開けませんでした: "+err.message); }
+}
+
+/* ============ 端末保存への書き戻し(覚えた/暗記) ============ */
+let _saveT=null;
+function persistCur(){
+  if(!curId) return;
+  clearTimeout(_saveT);
+  _saveT=setTimeout(async()=>{
+    try{
+      const r=await idbGet(curId);
+      if(!r) return;
+      r.sentences.forEach((s,i)=>{ if(sentences[i]){ s.learned=sentences[i].learned; s.anki=sentences[i].anki; } });
+      await idbPut(r);
+    }catch(e){}
+  },400);
+}
+
+/* ============ 画面切替 ============ */
+function showStudy(){
+  $("libView").style.display="none"; $("studyView").style.display="";
+  $("bar").style.display=""; $("backBtn").style.display="";
+  $("hdr").textContent=curTitle||"復習"; updateProg(); window.scrollTo(0,0);
+}
+function showLibrary(){
+  stop();
+  $("studyView").style.display="none"; $("bar").style.display="none"; $("backBtn").style.display="none";
+  $("libView").style.display=""; $("hdr").textContent="📚 オフライン復習"; $("prog").textContent="";
+  renderLibrary();
+}
+$("backBtn").addEventListener("click",showLibrary);
+function updateProg(){
+  if(!curId){ $("prog").textContent=""; return; }
+  const n=sentences.filter(s=>s.learned).length;
+  $("prog").textContent=`覚えた ${n}/${sentences.length}`;
+}
+
+/* ============ 文リスト描画 ============ */
+function renderStudy(){
+  const list=$("sentList"); list.innerHTML="";
+  const legend=document.createElement("div");
+  legend.className="legend";
+  legend.innerHTML="✓ = 覚えた ／ 🃏 = 暗記カードに出す文として選択（この端末に保存されます）";
+  list.appendChild(legend);
+  sentences.forEach((s,i)=>{
+    const row=document.createElement("div"); row.className="sent";
+    row.innerHTML=`<span class="ts">${formatTime(s.start)}</span>
+      <div class="body">
+        <div class="en${s.learned?" learned":""}">${escapeHtml(s.text)}</div>
+        <div class="ja">${escapeHtml(s.ja)}</div>
+      </div>
+      <div class="ops">
+        <button class="chk${s.learned?" on":""}">✓ 覚えた</button>
+        <button class="ank${s.anki!==false?" on":""}">🃏 暗記</button>
+      </div>`;
+    row.querySelector(".body").addEventListener("click",()=>playSentence(i,"single"));
+    row.querySelector(".ts").addEventListener("click",()=>playSentence(i,"single"));
+    row.querySelector(".chk").addEventListener("click",e=>{
+      e.stopPropagation();
+      const now=!e.currentTarget.classList.contains("on");
+      e.currentTarget.classList.toggle("on",now);
+      row.querySelector(".en").classList.toggle("learned",now);
+      sentences[i].learned=now; persistCur(); updateProg();
+    });
+    row.querySelector(".ank").addEventListener("click",e=>{
+      e.stopPropagation();
+      const now=!e.currentTarget.classList.contains("on");
+      e.currentTarget.classList.toggle("on",now);
+      sentences[i].anki=now; persistCur();
+    });
+    list.appendChild(row);
+  });
+}
+function highlight(){
+  document.querySelectorAll("#sentList .sent").forEach((el,idx)=>el.classList.toggle("active",idx===cur));
+  const el=document.querySelectorAll("#sentList .sent")[cur];
+  if(el) el.scrollIntoView({block:"center",behavior:"smooth"});
+}
+
+/* ============ 再生 ============ */
+function setSpeed(){ audio.playbackRate=parseFloat($("bSpeed").value); }
+function updatePlayBtn(){ $("bPlay").textContent = playing ? "❚❚" : "▶"; }
+function playSentence(i,newMode){
+  if(i<0||i>=sentences.length) return;
+  cur=i; if(newMode) mode=newMode;
+  audio.currentTime=sentences[i].start; setSpeed();
+  audio.play().catch(()=>{}); playing=true; highlight(); updatePlayBtn();
+}
+function stop(){ audio.pause(); playing=false; updatePlayBtn(); }
+function findIndexAtTime(t){ for(let i=sentences.length-1;i>=0;i--){ if(t>=sentences[i].start-0.03) return i; } return 0; }
+audio.addEventListener("timeupdate",()=>{
+  if(!sentences.length||cur<0) return;
+  const t=audio.currentTime;
+  if(sentLoop){ const s=sentences[cur]; if(s&&t>=s.end-0.02) audio.currentTime=s.start; return; }
+  if(mode==="single"){ const s=sentences[cur]; if(s&&t>=s.end-0.02){ audio.pause(); playing=false; updatePlayBtn(); } return; }
+  if(mode==="all"){
+    const last=sentences[sentences.length-1];
+    if(last&&t>=last.end-0.02){ if(fullLoop){ playSentence(0,"all"); } else { audio.pause(); playing=false; updatePlayBtn(); } return; }
+    const idx=findIndexAtTime(t); if(idx!==cur){ cur=idx; highlight(); }
+  }
+});
+audio.addEventListener("ended",()=>{ playing=false; updatePlayBtn(); });
+
+/* ============ バー操作 ============ */
+$("bPlay").addEventListener("click",()=>{
+  if(!sentences.length) return;
+  if(playing){ audio.pause(); playing=false; updatePlayBtn(); return; }
+  if(cur>=0&&audio.currentTime>0){ setSpeed(); audio.play().catch(()=>{}); playing=true; updatePlayBtn(); return; }
+  playSentence(cur>=0?cur:0, mode==="none"?"all":mode);
+});
+$("bBack").addEventListener("click",()=>{ audio.currentTime=Math.max(0,audio.currentTime-3); });
+$("bFwd").addEventListener("click",()=>{ audio.currentTime=Math.min(audio.duration||1e9,audio.currentTime+3); });
+$("bPrev").addEventListener("click",()=>{ if(cur>0) playSentence(cur-1); else playSentence(0); });
+$("bNext").addEventListener("click",()=>{ if(cur<sentences.length-1) playSentence(cur+1); });
+$("bSpeed").addEventListener("change",setSpeed);
+$("bSentLoop").addEventListener("click",e=>{ sentLoop=!sentLoop; if(sentLoop){ fullLoop=false; $("bFullLoop").classList.remove("on"); } e.currentTarget.classList.toggle("on",sentLoop); toast(sentLoop?"この文をリピート":"リピート解除"); });
+$("bFullLoop").addEventListener("click",e=>{ fullLoop=!fullLoop; if(fullLoop){ sentLoop=false; $("bSentLoop").classList.remove("on"); } e.currentTarget.classList.toggle("on",fullLoop); toast(fullLoop?"全体リピート":"リピート解除"); });
+
+/* ============ 訳の表示切替 ============ */
+function applyJa(){ const hide=localStorage.getItem(LS_HIDEJA)==="1"; document.body.classList.toggle("hide-ja",hide); $("bToggleJa").classList.toggle("on",!hide); }
+$("bToggleJa").addEventListener("click",()=>{ localStorage.setItem(LS_HIDEJA, localStorage.getItem(LS_HIDEJA)==="1"?"0":"1"); applyJa(); });
+applyJa();
+
+/* ============ 起動 ============ */
+renderLibrary();
+</script>
+</body>
+</html>
