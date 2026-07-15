@@ -54,9 +54,9 @@
   .sent .en.learned{color:#9ca3af}
   .sent .ja{color:#8a919e;font-size:13.5px;line-height:1.5;margin-top:4px}
   body.hide-ja .sent .ja{display:none}
-  .sent .ops{display:flex;flex-direction:column;gap:7px;align-items:stretch;flex-shrink:0;margin-top:1px}
+  .sent .ops{display:flex;gap:8px;margin-top:9px}
   .sent .chk,.sent .ank{border:2px solid var(--border);border-radius:999px;background:var(--card);
-    font-size:12px;padding:7px 12px;white-space:nowrap;color:var(--sub);font-family:inherit;line-height:1}
+    font-size:12px;padding:7px 14px;white-space:nowrap;color:var(--sub);font-family:inherit;line-height:1}
   .sent .chk.on{background:var(--green);border-color:var(--green);color:#fff}
   .sent .ank.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
   .legend{font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:10px;
@@ -290,7 +290,7 @@ function persistCur(){
 /* ============ 画面切替 ============ */
 function showStudy(){
   $("libView").style.display="none"; $("studyView").style.display="";
-  $("bar").style.display=""; $("backBtn").style.display="";
+  $("bar").style.display="block"; $("backBtn").style.display="";
   $("hdr").textContent=curTitle||"復習"; updateProg(); window.scrollTo(0,0);
 }
 function showLibrary(){
@@ -319,10 +319,10 @@ function renderStudy(){
       <div class="body">
         <div class="en${s.learned?" learned":""}">${escapeHtml(s.text)}</div>
         <div class="ja">${escapeHtml(s.ja)}</div>
-      </div>
-      <div class="ops">
-        <button class="chk${s.learned?" on":""}">✓ 覚えた</button>
-        <button class="ank${s.anki!==false?" on":""}">🃏 暗記</button>
+        <div class="ops">
+          <button class="chk${s.learned?" on":""}">✓ 覚えた</button>
+          <button class="ank${s.anki!==false?" on":""}">🃏 暗記</button>
+        </div>
       </div>`;
     row.querySelector(".body").addEventListener("click",()=>playSentence(i,"single"));
     row.querySelector(".ts").addEventListener("click",()=>playSentence(i,"single"));
