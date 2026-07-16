@@ -46,7 +46,7 @@
   .libcard .del{color:#b91c1c;font-size:16px;background:none;border:none;padding:6px 4px}
 
   .sent{background:var(--card);border:1px solid var(--border);border-radius:12px;
-    padding:12px 12px;margin-bottom:9px;display:flex;gap:10px;align-items:flex-start}
+    padding:12px 12px;margin-bottom:9px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
   .sent.active{border-color:var(--accent);background:var(--accent-soft)}
   .sent .ts{color:var(--accent);font-size:12px;min-width:42px;padding-top:3px;font-variant-numeric:tabular-nums}
   .sent .body{flex:1;min-width:0}
@@ -54,7 +54,12 @@
   .sent .en.learned{color:#9ca3af}
   .sent .ja{color:#8a919e;font-size:13.5px;line-height:1.5;margin-top:4px}
   body.hide-ja .sent .ja{display:none}
-  .sent .ops{display:flex;gap:8px;margin-top:9px}
+  /* 狭い画面(iPhone): ボタンは文の下。広い画面(iPad等): 右側に縦並び。 */
+  .sent .ops{display:flex;gap:8px;flex-basis:100%;margin:2px 0 0 52px}
+  @media(min-width:700px){
+    .sent{flex-wrap:nowrap}
+    .sent .ops{flex-basis:auto;flex-direction:column;margin:1px 0 0 0}
+  }
   .sent .chk,.sent .ank{border:2px solid var(--border);border-radius:999px;background:var(--card);
     font-size:12px;padding:7px 14px;white-space:nowrap;color:var(--sub);font-family:inherit;line-height:1}
   .sent .chk.on{background:var(--green);border-color:var(--green);color:#fff}
@@ -319,10 +324,10 @@ function renderStudy(){
       <div class="body">
         <div class="en${s.learned?" learned":""}">${escapeHtml(s.text)}</div>
         <div class="ja">${escapeHtml(s.ja)}</div>
-        <div class="ops">
-          <button class="chk${s.learned?" on":""}">✓ 覚えた</button>
-          <button class="ank${s.anki!==false?" on":""}">🃏 暗記</button>
-        </div>
+      </div>
+      <div class="ops">
+        <button class="chk${s.learned?" on":""}">✓ 覚えた</button>
+        <button class="ank${s.anki!==false?" on":""}">🃏 暗記</button>
       </div>`;
     row.querySelector(".body").addEventListener("click",()=>playSentence(i,"single"));
     row.querySelector(".ts").addEventListener("click",()=>playSentence(i,"single"));

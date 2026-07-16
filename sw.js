@@ -1,5 +1,5 @@
 /* オフライン用: アプリ本体(画面のコード)をキャッシュする。音声・データはIndexedDBに保存されるのでここでは扱わない。 */
-const CACHE = "yls-pwa-v3";
+const CACHE = "yls-pwa-v4";
 const ASSETS = [
   "./",
   "./index.html",
